@@ -72,25 +72,17 @@ public class ProductController {
     }
 
     @PutMapping("/products/{id}")
-    public ResponseEntity<String> updateProduct(@PathVariable int id, @RequestPart Product product,
-                                                @RequestPart MultipartFile imageFile)
-    {
-        Product product1 = null;
+    public ResponseEntity<String> updateProduct(@PathVariable int id,
+                                                @RequestPart("product") Product product,
+                                                @RequestPart(value = "imageFile", required = false) MultipartFile imageFile) {
         try {
-            product1 = productService.updateProduct(id, product,imageFile);
-        } catch (IOException e)
-        {
-            throw new RuntimeException(e);
-        }
-
-        if(product1 != null)
-        {
+            Product updatedProduct = productService.updateProduct(id, product, imageFile);
             return new ResponseEntity<>("Updated", HttpStatus.OK);
-        }
-        else {
-            return new ResponseEntity<>("Failed to Update", HttpStatus.BAD_REQUEST);
+        } catch (IOException e) {
+            return new ResponseEntity<>("Failed to update product", HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
 
     @DeleteMapping("/products/{id}")
     public ResponseEntity<String> deleteProduct(@PathVariable int id)
@@ -106,6 +98,13 @@ public class ProductController {
         }
     }
 
+    @GetMapping("/products/search")
+    public ResponseEntity<List<Product>> searchProducts(@RequestParam String keyword) {
+
+        List<Product> products = productService.searchProducts(keyword);
+        System.out.println("searching with " + keyword);
+        return new ResponseEntity<>(products, HttpStatus.OK);
+    }
 
 
 
